@@ -1,0 +1,28 @@
+{
+  "extends": [
+    "@antfu"
+  ],
+  "rules": {
+    "complexity": [
+      "error",
+      5
+    ],
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always-and-inside-groups",
+        "pathGroups": [
+          {
+            "group": "external",
+            "pattern": "~/**",
+            "position": "after"
+          }
+        ]
+      }
+    ],
+    "max-len": [
+      "error",
+      120
+    ]
+  }
+}
