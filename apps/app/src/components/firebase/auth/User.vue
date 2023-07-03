@@ -1,50 +1,47 @@
 <script setup lang="ts">
 import { useAuth } from '@vueuse/firebase/useAuth'
-import { signOut as _signOut } from 'firebase/auth'
-
-interface State {
-  error: Error | undefined
-  isLoading: boolean
-}
+import { type Auth, type User, signOut as _signOut } from 'firebase/auth'
 
 defineOptions({ name: 'AuthUser', inheritAttrs: false })
 
+const slots = defineSlots<{
+  authenticated: (props: {
+    auth: Auth
+    signOut: () => void
+    isAuthenticated: boolean
+    user: User
+  }) => void
+  fallback: (...props: any[]) => void
+  signedOut: (props: { auth: Auth }) => void
+}>()
+
 const { auth } = useFirebase()
-
-const state = shallowReactive<State>({
-  error: undefined,
-  isLoading: true,
-})
-
-onMounted(() => state.isLoading = false)
-
+const isLoading = shallowRef<boolean>(true)
 const { isAuthenticated, user } = useAuth(auth)
 
-const stopWatching = watch(user, () => {
-  state.isLoading = false
-})
-
-onScopeDispose(stopWatching)
+// TODO: check for proper loading state change and user type aliasing below
+onMounted(() => isLoading.value = false)
+onScopeDispose(watch(user, () => isLoading.value = false))
 
 function signOut() {
-  state.isLoading = true
+  isLoading.value = true
 
   _signOut(auth)
 }
 </script>
 
 <template>
-  <slot v-bind="{ auth }" />
-
-  <slot v-if="state.isLoading" name="fallback">
+  <slot v-if="isLoading" name="fallback">
     <span>loading...</span>
   </slot>
 
   <slot
-    v-if="isAuthenticated"
+    v-if="'authenticated' in slots && isAuthenticated"
     name="authenticated"
-    v-bind="{ auth, isAuthenticated, signOut, user }"
+    v-bind="{ auth, isAuthenticated, signOut, user: user as User }"
   />
 
-  <slot v-else name="signedOut" v-bind="{ auth }" />
+  <slot v-else-if="'signedOut' in slots" name="signedOut" v-bind="{ auth }">
+    signedOut
+  </slot>
 </template>

@@ -22,8 +22,8 @@ const initialDocValue = {} as DocRecord
 <template>
   <FirebaseApp>
     <User>
-      <template #authenticated="{ user, signOut }">
-        <div>user: {{ user?.uid }}</div>
+      <template #authenticated="{ signOut, user }">
+        <div>user: {{ user.uid }}</div>
 
         <button class="btn" type="button" @click="signOut">
           Sign out

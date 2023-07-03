@@ -1,49 +1,38 @@
-<script setup lang="ts" generic="T extends DocumentData">
+<script setup lang="ts" generic="T extends DocumentData & Entity">
 import { useFirestore } from '@vueuse/firebase/useFirestore'
 import { type DocumentData, type DocumentReference, doc } from 'firebase/firestore'
 
-import type { Nullable } from '~/types'
+import type { Entity, Nullable } from '~/types'
 
 interface Props {
   initialValue: Nullable<T>
   path: string | DocumentReference<T>
 }
 
-interface State {
-  error: Error | undefined
-  isLoading: boolean
-}
-
 defineOptions({ name: 'FirestoreDocument', inheritAttrs: false })
 
 const { initialValue, path } = defineProps<Props>()
+
+// TODO: check why defineSlots brokes generic T
+
+const error = shallowRef<Error | undefined>()
+const isLoading = shallowRef<boolean>(true)
 const { firestore: db } = useFirebase()
-
 const docRef = typeof path === 'string' ? doc(db, path) : path
-
-const state = shallowReactive<State>({
-  error: undefined,
-  isLoading: true,
-})
-
 const data = useFirestore(docRef, initialValue, { errorHandler }) as unknown as T
 
-const stopWatching = watch(data, () => {
-  state.isLoading = false
-})
-
-onScopeDispose(stopWatching)
+onScopeDispose(watch(data, () => isLoading.value = false))
 
 function errorHandler(value: Error) {
-  state.error = value
-  state.isLoading = false
+  error.value = value
+  isLoading.value = false
 }
 </script>
 
 <template>
-  <slot v-if="state.isLoading" name="fallback">
+  <slot v-if="isLoading" name="fallback">
     <span>loading...</span>
   </slot>
 
-  <slot v-else v-bind="{ data, ...toRefs(state) }" />
+  <slot v-else v-bind="{ data, error, isLoading }" />
 </template>
