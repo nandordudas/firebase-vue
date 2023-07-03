@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends DocumentData">
+<script setup lang="ts" generic="T extends DocumentData & Entity">
 import { useFirestore } from '@vueuse/firebase/useFirestore'
 import {
   type CollectionReference,
@@ -9,6 +9,8 @@ import {
   query,
 } from 'firebase/firestore'
 
+import type { Entity } from '~/types'
+
 interface Props {
   filters?: QueryConstraint[]
   initialValue?: T[]
@@ -16,16 +18,16 @@ interface Props {
 }
 
 interface State {
-  isLoading: boolean
   error: Error | undefined
+  isLoading: boolean
 }
 
-defineOptions({ name: 'FirestoreDatabaseCollection', inheritAttrs: false })
+defineOptions({ name: 'FirestoreCollection', inheritAttrs: false })
 
 const { filters, initialValue, path } = defineProps<Props>()
-const { firestore } = useFirebase()
+const { firestore: db } = useFirebase()
 
-const docRef = typeof path === 'string' ? collection(firestore, path) : path
+const docRef = typeof path === 'string' ? collection(db, path) : path
 
 const state = shallowReactive<State>({
   isLoading: true,
@@ -49,12 +51,12 @@ function errorHandler(value: Error) {
 </script>
 
 <template>
-  <slot v-if="state.isLoading" name="loading">
+  <slot v-if="state.isLoading" name="fallback">
     <span>loading...</span>
   </slot>
 
   <template v-else>
     <slot v-bind="{ data, ...toRefs(state) }" />
-    <slot v-for="(item, i) in data" :key="i" name="item" v-bind="item" />
+    <slot v-for="item in data" :key="item.id" name="item" v-bind="item" />
   </template>
 </template>

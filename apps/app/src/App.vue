@@ -1,14 +1,22 @@
 <script setup lang="ts">
-import { limit, orderBy } from 'firebase/firestore'
+import { signInAnonymously } from 'firebase/auth'
+import { type CollectionReference, limit, orderBy } from 'firebase/firestore'
 
-interface Record {
+import type { Entity } from '~/types'
+
+interface CollectionRecord extends Entity {
   gid: string
   name: string
-  steps?: string
+  steps?: CollectionReference
 }
 
-const initialGameValue: Record[] = []
-const gameFilter = [orderBy('name', 'asc'), limit(10)]
+interface DocRecord extends Entity {
+  name: string
+  sid: string
+}
+
+const initialCollectionValue: CollectionRecord[] = []
+const initialDocValue = {} as DocRecord
 </script>
 
 <template>
@@ -16,33 +24,30 @@ const gameFilter = [orderBy('name', 'asc'), limit(10)]
     <User>
       <template #authenticated="{ user, signOut }">
         <div>user: {{ user?.uid }}</div>
+
         <button class="btn" type="button" @click="signOut">
           Sign out
         </button>
       </template>
 
-      <template #signedOut="{ signInAnonymously }">
-        <button class="btn" type="button" @click="signInAnonymously">
-          Sign in
+      <template #signedOut="{ auth }">
+        <button class="btn" type="button" @click="signInAnonymously(auth)">
+          Sign in (anonymously)
         </button>
       </template>
     </User>
 
-    <Collection path="games" :initial-value="initialGameValue" :filters="gameFilter">
-      <template #item="{ gid, key, name }">
-        <div :key="key">
-          <div>{{ gid }} - {{ name }}</div>
-
-          <Collection :path="`games/${gid}/steps`">
-            <template #item="item">
-              <Document :path="`/games/${gid}/steps/${(item as any).sid}`">
-                <template #default="{ data }">
-                  <div>> {{ data }}</div>
-                </template>
-              </Document>
-            </template>
-          </Collection>
-        </div>
+    <Collection path="games" :filters="[orderBy('name', 'asc'), limit(10)]" :initial-value="initialCollectionValue">
+      <template #item="{ key }">
+        <Collection :path="`games/${key}/steps`">
+          <template #item="item">
+            <Doc :initial-value="initialDocValue" :path="`/games/${key}/steps/${(item as any).sid}`">
+              <template #default="{ data }">
+                <div>> {{ data }}</div>
+              </template>
+            </Doc>
+          </template>
+        </Collection>
       </template>
     </Collection>
   </FirebaseApp>

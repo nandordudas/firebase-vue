@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useAuth } from '@vueuse/firebase/useAuth'
-import { signInAnonymously as _signInAnonymously, signOut as _signOut } from 'firebase/auth'
+import { signOut as _signOut } from 'firebase/auth'
 
 interface State {
-  isLoading: boolean
   error: Error | undefined
+  isLoading: boolean
 }
 
-defineOptions({ name: 'AuthenticationUser', inheritAttrs: false })
+defineOptions({ name: 'AuthUser', inheritAttrs: false })
 
 const { auth } = useFirebase()
 
@@ -31,16 +31,12 @@ function signOut() {
 
   _signOut(auth)
 }
-
-function signInAnonymously() {
-  state.isLoading = true
-
-  _signInAnonymously(auth)
-}
 </script>
 
 <template>
-  <slot v-if="state.isLoading" name="loading">
+  <slot v-bind="{ auth }" />
+
+  <slot v-if="state.isLoading" name="fallback">
     <span>loading...</span>
   </slot>
 
@@ -50,5 +46,5 @@ function signInAnonymously() {
     v-bind="{ auth, isAuthenticated, signOut, user }"
   />
 
-  <slot v-else name="signedOut" v-bind="{ auth, signInAnonymously }" />
+  <slot v-else name="signedOut" v-bind="{ auth }" />
 </template>

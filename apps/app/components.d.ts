@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Collection: typeof import('./src/components/firebase/firestore/Collection.vue')['default']
+    Doc: typeof import('./src/components/firebase/firestore/Doc.vue')['default']
     Document: typeof import('./src/components/firebase/firestore/Document.vue')['default']
     FirebaseApp: typeof import('./src/components/firebase/FirebaseApp.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

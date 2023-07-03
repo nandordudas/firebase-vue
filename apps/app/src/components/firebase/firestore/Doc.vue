@@ -2,29 +2,31 @@
 import { useFirestore } from '@vueuse/firebase/useFirestore'
 import { type DocumentData, type DocumentReference, doc } from 'firebase/firestore'
 
+import type { Nullable } from '~/types'
+
 interface Props {
-  initialValue?: T | null
+  initialValue: Nullable<T>
   path: string | DocumentReference<T>
 }
 
 interface State {
-  isLoading: boolean
   error: Error | undefined
+  isLoading: boolean
 }
 
-defineOptions({ name: 'FirestoreDatabaseDocument', inheritAttrs: false })
+defineOptions({ name: 'FirestoreDocument', inheritAttrs: false })
 
 const { initialValue, path } = defineProps<Props>()
-const { firestore } = useFirebase()
+const { firestore: db } = useFirebase()
 
-const docRef = typeof path === 'string' ? doc(firestore, path) : path
+const docRef = typeof path === 'string' ? doc(db, path) : path
 
 const state = shallowReactive<State>({
   error: undefined,
   isLoading: true,
 })
 
-const data = useFirestore(docRef, initialValue, { errorHandler }) as unknown as T[]
+const data = useFirestore(docRef, initialValue, { errorHandler }) as unknown as T
 
 const stopWatching = watch(data, () => {
   state.isLoading = false
@@ -39,7 +41,7 @@ function errorHandler(value: Error) {
 </script>
 
 <template>
-  <slot v-if="state.isLoading" name="loading">
+  <slot v-if="state.isLoading" name="fallback">
     <span>loading...</span>
   </slot>
 
