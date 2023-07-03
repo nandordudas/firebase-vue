@@ -1,0 +1,27 @@
+{
+  "name": "@workspace/functions",
+  "private": true,
+  "main": "./dist/index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build:watch": "pnp run build --watch",
+    "build": "tsc",
+    "deploy": "firebase deploy --only functions",
+    "emulators:start-only-functions": "firebase emulators:start --only functions",
+    "emulators:start": "firebase emulators:start --export-on-exit --import ./tmp/",
+    "logs": "firebase functions:log",
+    "serve": "pnpm run build && pnpm run emulators:start-only-functions",
+    "shell": "pnpm run build && firebase functions:shell",
+    "start": "pnpm run shell"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.9.0",
+    "firebase-functions": "^4.4.1"
+  },
+  "devDependencies": {
+    "firebase-functions-test": "^3.1.0",
+    "typescript": "^5.1.6"
+  }
+}

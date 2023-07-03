@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "@tsconfig/strictest/tsconfig"
+  ],
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "outDir": "./dist",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017",
+    "types": [
+      "@total-typescript/ts-reset"
+    ]
+  },
+  "compileOnSave": true,
+  "include": [
+    "./src"
+  ]
+}
