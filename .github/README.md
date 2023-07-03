@@ -14,4 +14,4 @@ GOOGLE_APPLICATION_CREDENTIALS=/.vscode/...
 
 ## ToDo
 
-- setup firebase emulators
+- setup firebase emulators [x]
