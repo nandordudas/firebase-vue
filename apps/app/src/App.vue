@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { signInAnonymously } from 'firebase/auth'
-import { type CollectionReference, limit, orderBy } from 'firebase/firestore'
+import { type CollectionReference, collection, limit, orderBy } from 'firebase/firestore'
 
 import type { Entity } from '~/types'
 
@@ -20,7 +20,7 @@ const initialDocValue = {} as DocRecord
 </script>
 
 <template>
-  <FirebaseApp>
+  <FirebaseApp v-slot="{ firestore }">
     <User>
       <template #authenticated="{ signOut, user }">
         <div>user: {{ user.uid }}</div>
@@ -37,7 +37,11 @@ const initialDocValue = {} as DocRecord
       </template>
     </User>
 
-    <Collection path="games" :filters="[orderBy('name', 'asc'), limit(10)]" :initial-value="initialCollectionValue">
+    <Collection
+      :path="collection(firestore, 'games')"
+      :filters="[orderBy('name', 'asc'), limit(10)]"
+      :initial-value="initialCollectionValue"
+    >
       <template #item="{ key }">
         <Collection :path="`games/${key}/steps`">
           <template #item="item">
