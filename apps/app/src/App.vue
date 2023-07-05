@@ -2,6 +2,12 @@
 import { signInAnonymously } from 'firebase/auth'
 import { type CollectionReference, collection, limit, orderBy } from 'firebase/firestore'
 
+// TODO: how it works with component auto imports
+import FirebaseApp from '~/components/firebase/FirebaseApp.vue'
+import User from '~/components/firebase/auth/User.vue'
+import Collection from '~/components/firebase/firestore/Collection.vue'
+import Doc from '~/components/firebase/firestore/Doc.vue'
+
 import type { Entity } from '~/types'
 
 interface CollectionRecord extends Entity {
@@ -15,8 +21,9 @@ interface DocRecord extends Entity {
   sid: string
 }
 
-const initialCollectionValue: CollectionRecord[] = []
-const initialDocValue = {} as DocRecord
+const GameCollection = Collection<CollectionRecord>
+const GameStepCollection = Collection<DocRecord>
+const GameDoc = Doc<DocRecord>
 </script>
 
 <template>
@@ -37,22 +44,18 @@ const initialDocValue = {} as DocRecord
       </template>
     </User>
 
-    <Collection
-      :path="collection(firestore, 'games')"
-      :filters="[orderBy('name', 'asc'), limit(10)]"
-      :initial-value="initialCollectionValue"
-    >
+    <GameCollection :path="collection(firestore, 'games')" :filters="[orderBy('name', 'asc'), limit(10)]">
       <template #item="{ key }">
-        <Collection :path="`games/${key}/steps`">
+        <GameStepCollection :path="`games/${key}/steps`">
           <template #item="item">
-            <Doc :initial-value="initialDocValue" :path="`/games/${key}/steps/${(item as any).sid}`">
+            <GameDoc :path="`/games/${key}/steps/${item.sid}`">
               <template #default="{ data }">
                 <div>> {{ data }}</div>
               </template>
-            </Doc>
+            </GameDoc>
           </template>
-        </Collection>
+        </GameStepCollection>
       </template>
-    </Collection>
+    </GameCollection>
   </FirebaseApp>
 </template>

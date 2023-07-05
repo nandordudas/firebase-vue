@@ -5,7 +5,7 @@ import { type DocumentData, type DocumentReference, doc } from 'firebase/firesto
 import type { Entity, Nullable } from '~/types'
 
 interface Props {
-  initialValue: Nullable<T>
+  initialValue?: Nullable<T>
   path: string | DocumentReference<T>
 }
 
