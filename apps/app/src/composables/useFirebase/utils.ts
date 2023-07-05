@@ -1,9 +1,9 @@
-import { type Auth, getAuth } from 'firebase/auth'
-import { type Firestore, getFirestore } from 'firebase/firestore'
+import { type Auth } from 'firebase/auth'
+import { type Firestore } from 'firebase/firestore'
 
-import { app } from '~/firebase'
+import { invoke, unary } from '~/utils'
 
-interface State {
+interface Props {
   auth: Auth
   firestore: Firestore
 }
@@ -13,10 +13,7 @@ const {
   VITE_FIRESTORE_EMULATOR_HOST,
 } = import.meta.env
 
-const auth = getAuth(app)
-const firestore = getFirestore(app)
-
-async function connectEmulators() {
+export async function connectEmulators({ auth, firestore }: Props) {
   if (location.hostname !== 'localhost')
     return
 
@@ -41,11 +38,5 @@ async function connectEmulators() {
 
       connectFirestoreEmulator(firestore, host, Number.parseInt(port, 10))
     },
-  ].map(fn => fn()))
-}
-
-await connectEmulators()
-
-export function useFirebase(): State {
-  return { auth, firestore }
+  ].map(unary(invoke)))
 }
