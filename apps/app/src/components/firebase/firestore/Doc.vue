@@ -13,12 +13,12 @@ defineOptions({ name: 'FirestoreDocument', inheritAttrs: false })
 
 const { initialValue, path } = defineProps<Props>()
 
-// TODO: check why defineSlots brokes generic T
+// TODO: check why defineSlots broke generic T
 
 const error = shallowRef<Error | undefined>()
 const isLoading = shallowRef<boolean>(true)
-const { firestore: db } = useFirebase()
-const docRef = typeof path === 'string' ? doc(db, path) : path
+const { firestore } = useFirebase()
+const docRef = typeof path === 'string' ? doc(firestore, path) : path
 const data = useFirestore(docRef, initialValue, { errorHandler }) as unknown as T
 
 onScopeDispose(watch(data, () => isLoading.value = false))
