@@ -4,10 +4,10 @@ import { type Auth, type User, signOut as _signOut } from 'firebase/auth'
 
 defineOptions({ name: 'AuthUser', inheritAttrs: false })
 
-const slots = defineSlots<{
+defineSlots<{
   authenticated: (props: {
     auth: Auth
-    signOut: () => void
+    signOut: () => Promise<void>
     isAuthenticated: boolean
     user: User
   }) => void
@@ -23,10 +23,10 @@ const { isAuthenticated, user } = useAuth(auth)
 onMounted(() => isLoading.value = false)
 onScopeDispose(watch(user, () => isLoading.value = false))
 
-function signOut() {
+async function signOut() {
   isLoading.value = true
 
-  _signOut(auth)
+  await _signOut(auth)
 }
 </script>
 
@@ -35,13 +35,13 @@ function signOut() {
     <span>loading...</span>
   </slot>
 
-  <slot
-    v-if="'authenticated' in slots && isAuthenticated"
-    name="authenticated"
-    v-bind="{ auth, isAuthenticated, signOut, user: user as User }"
-  />
+  <template v-else>
+    <slot
+      v-if="isAuthenticated"
+      name="authenticated"
+      v-bind="{ auth, isAuthenticated, signOut, user: user as User }"
+    />
 
-  <slot v-else-if="'signedOut' in slots" name="signedOut" v-bind="{ auth }">
-    signedOut
-  </slot>
+    <slot v-else name="signedOut" v-bind="{ auth }" />
+  </template>
 </template>
