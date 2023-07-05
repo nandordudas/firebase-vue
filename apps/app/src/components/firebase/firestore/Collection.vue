@@ -24,7 +24,6 @@ const slots = defineSlots<{
   default: (props: {
     data: T[]
     error: Error | undefined
-    isLoading: boolean
   }) => void
   fallback: (...props: any[]) => void
   item: (props: T) => void
@@ -51,7 +50,7 @@ function errorHandler(value: Error) {
   </slot>
 
   <template v-else>
-    <slot v-bind="{ data, error, isLoading }" />
+    <slot v-bind="{ data, error }" />
 
     <template v-if="'item' in slots">
       <!-- TODO: check memoization -->
