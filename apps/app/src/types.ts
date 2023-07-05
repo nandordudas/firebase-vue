@@ -1,3 +1,5 @@
+export type Fn = (...args: any[]) => any
+
 export type Nullable<T> = T | null | undefined
 
 export interface Entity {

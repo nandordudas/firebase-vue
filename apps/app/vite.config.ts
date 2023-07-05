@@ -23,7 +23,7 @@ export default defineConfig({
         'vue',
       ],
       dirs: [
-        './src/composables',
+        './src/composables/**',
         './src/stores',
       ],
       vueTemplate: true,
