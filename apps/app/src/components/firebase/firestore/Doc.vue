@@ -34,5 +34,5 @@ function errorHandler(value: Error) {
     <span>loading...</span>
   </slot>
 
-  <slot v-else v-bind="{ data, error, isLoading }" />
+  <slot v-else v-bind="{ data, error }" />
 </template>
