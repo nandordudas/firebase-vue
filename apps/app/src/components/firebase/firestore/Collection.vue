@@ -20,14 +20,6 @@ interface Props {
 defineOptions({ name: 'FirestoreCollection', inheritAttrs: false })
 
 const { filters, initialValue, path } = defineProps<Props>()
-const slots = defineSlots<{
-  default: (props: {
-    data: T[]
-    error: Error | undefined
-  }) => void
-  fallback: (...props: any[]) => void
-  item: (props: T) => void
-}>()
 const error = shallowRef<Error | undefined>()
 const isLoading = shallowRef<boolean>(true)
 const { firestore } = useFirebase()
@@ -52,9 +44,7 @@ function errorHandler(value: Error) {
   <template v-else>
     <slot v-bind="{ data, error }" />
 
-    <template v-if="'item' in slots">
-      <!-- TODO: check memoization -->
-      <slot v-for="item in data" :key="item.id" v-memo="data" name="item" v-bind="item" />
-    </template>
+    <!-- TODO: check memoization -->
+    <slot v-for="item in data" :key="item.id" v-memo="data" name="item" v-bind="item" />
   </template>
 </template>
