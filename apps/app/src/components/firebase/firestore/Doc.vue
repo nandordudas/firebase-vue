@@ -1,25 +1,28 @@
 <script setup lang="ts" generic="T extends DocumentData & Entity">
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { type UseFirestoreOptions, useFirestore } from '@vueuse/firebase/useFirestore'
 import { type DocumentData, type DocumentReference, doc } from 'firebase/firestore'
 
-import type { Entity, Nullable } from '~/types'
+import type { Entity } from '~/types'
 
-interface Props {
-  initialValue?: Nullable<T>
+interface Props extends Pick<UseFirestoreOptions, 'autoDispose'> {
+  initialValue?: T[]
   path: string | DocumentReference<T>
 }
 
 defineOptions({ name: 'FirestoreDocument', inheritAttrs: false })
 
-const { initialValue, path } = defineProps<Props>()
-
-// TODO: check why defineSlots broke generic T
-
+const { autoDispose = true, initialValue, path } = defineProps<Props>()
 const error = shallowRef<Error | undefined>()
 const isLoading = shallowRef<boolean>(true)
+
 const { firestore } = useFirebase()
+
 const docRef = typeof path === 'string' ? doc(firestore, path) : path
-const data = useFirestore(docRef, initialValue, { errorHandler }) as unknown as T
+const data = useFirestore(
+  docRef,
+  initialValue,
+  { autoDispose, errorHandler },
+) as unknown as T
 
 onScopeDispose(watch(data, () => isLoading.value = false))
 

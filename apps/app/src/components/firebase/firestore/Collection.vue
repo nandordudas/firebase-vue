@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends DocumentData & Entity">
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { type UseFirestoreOptions, useFirestore } from '@vueuse/firebase/useFirestore'
 import {
   type CollectionReference,
   type DocumentData,
@@ -11,7 +11,7 @@ import {
 
 import type { Entity } from '~/types'
 
-interface Props {
+interface Props extends Pick<UseFirestoreOptions, 'autoDispose'> {
   filters?: QueryConstraint[]
   initialValue?: T[]
   path: string | CollectionReference | Query
@@ -19,13 +19,17 @@ interface Props {
 
 defineOptions({ name: 'FirestoreCollection', inheritAttrs: false })
 
-const { filters, initialValue, path } = defineProps<Props>()
+const { autoDispose = true, filters, initialValue, path } = defineProps<Props>()
 const error = shallowRef<Error | undefined>()
 const isLoading = shallowRef<boolean>(true)
+
 const { firestore } = useFirebase()
+
 const docRef = typeof path === 'string' ? collection(firestore, path) : path
 const data = useFirestore(
-  filters ? query(docRef, ...filters) : docRef, initialValue, { errorHandler },
+  filters ? query(docRef, ...filters) : docRef,
+  initialValue,
+  { autoDispose, errorHandler },
 ) as unknown as T[]
 
 onScopeDispose(watch(data, () => isLoading.value = false))
@@ -44,7 +48,6 @@ function errorHandler(value: Error) {
   <template v-else>
     <slot v-bind="{ data, error }" />
 
-    <!-- TODO: check memoization -->
     <slot v-for="item in data" :key="item.id" v-memo="data" name="item" v-bind="item" />
   </template>
 </template>
