@@ -41,7 +41,7 @@ const GameDoc = Doc<DocRecord>
           </button>
         </template>
 
-        <template #signedOut="{ auth }">
+        <template #signedOut>
           <button class="btn" type="button" @click="signInAnonymously(auth)">
             Sign in (anonymously)
           </button>
