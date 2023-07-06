@@ -1,4 +1,4 @@
-import { createPinia } from 'pinia'
+// import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
 import App from './App.vue'
@@ -11,9 +11,9 @@ main()
 
 function main() {
   const app = createApp(App)
-  const pinia = createPinia()
+  // const pinia = createPinia()
 
   app
-    .use(pinia)
+    // .use(pinia)
     .mount('#app')
 }
