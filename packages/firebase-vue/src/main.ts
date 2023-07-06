@@ -1,0 +1,6 @@
+export * from './composables/useStore'
+export { default as Collection } from './components/firebase/Collection.vue'
+export { default as Doc } from './components/firebase/Doc.vue'
+export { default as FirebaseApp } from './components/firebase/FirebaseApp.vue'
+export { default as FirebaseUser } from './components/firebase/FirebaseUser.vue'
+export * from './types'
