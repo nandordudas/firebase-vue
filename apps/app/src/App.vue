@@ -27,35 +27,47 @@ const GameDoc = Doc<DocRecord>
 </script>
 
 <template>
-  <FirebaseApp v-slot="{ firestore }">
-    <User>
-      <template #authenticated="{ signOut, user }">
-        <div>user: {{ user.uid }}</div>
+  <Suspense>
+    <template #fallback>
+      <p>loading firebase application...</p>
+    </template>
 
-        <button class="btn" type="button" @click="signOut">
-          Sign out
-        </button>
-      </template>
+    <FirebaseApp v-slot="{ auth, firestore }">
+      <User :auth="auth">
+        <template #authenticated="{ signOut, user }">
+          <div>user: {{ user.uid }}</div>
+          <button class="btn" type="button" @click="signOut">
+            Sign out
+          </button>
+        </template>
 
-      <template #signedOut="{ auth }">
-        <button class="btn" type="button" @click="signInAnonymously(auth)">
-          Sign in (anonymously)
-        </button>
-      </template>
-    </User>
+        <template #signedOut="{ auth }">
+          <button class="btn" type="button" @click="signInAnonymously(auth)">
+            Sign in (anonymously)
+          </button>
+        </template>
+      </User>
 
-    <GameCollection :path="collection(firestore, 'games')" :filters="[orderBy('name', 'asc'), limit(10)]">
-      <template #item="{ key }">
-        <GameStepCollection :path="`games/${key}/steps`">
-          <template #item="item">
-            <GameDoc :path="`/games/${key}/steps/${item.sid}`">
-              <template #default="{ data }">
-                <div>> {{ data }}</div>
-              </template>
-            </GameDoc>
-          </template>
-        </GameStepCollection>
-      </template>
-    </GameCollection>
-  </FirebaseApp>
+      <GameCollection
+        :path="collection(firestore, 'games')"
+        :filters="[orderBy('name', 'asc'), limit(10)]"
+        :firestore="firestore"
+      >
+        <template #item="{ key }">
+          <GameStepCollection
+            :path="`games/${key}/steps`"
+            :firestore="firestore"
+          >
+            <template #item="item">
+              <GameDoc :firestore="firestore" :path="`/games/${key}/steps/${item.sid}`">
+                <template #default="{ data }">
+                  <div>> {{ data }}</div>
+                </template>
+              </GameDoc>
+            </template>
+          </GameStepCollection>
+        </template>
+      </GameCollection>
+    </FirebaseApp>
+  </Suspense>
 </template>

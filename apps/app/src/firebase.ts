@@ -1,4 +1,6 @@
-import { type FirebaseOptions, initializeApp } from 'firebase/app'
+import { type FirebaseApp, type FirebaseOptions } from 'firebase/app'
+
+let app: FirebaseApp
 
 const {
   VITE_APP_ID,
@@ -16,4 +18,18 @@ const firebaseConfig: FirebaseOptions = {
   appId: VITE_APP_ID,
 }
 
-export const app = initializeApp(firebaseConfig)
+export async function createApp(): Promise<FirebaseApp> {
+  if (app)
+    return app
+
+  try {
+    const { initializeApp } = await import('firebase/app')
+
+    app = initializeApp(firebaseConfig)
+  }
+  catch (error) {
+    console.error(error)
+  }
+
+  return app
+}

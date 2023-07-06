@@ -3,6 +3,7 @@ import { type UseFirestoreOptions, useFirestore } from '@vueuse/firebase/useFire
 import {
   type CollectionReference,
   type DocumentData,
+  type Firestore,
   type Query,
   type QueryConstraint,
   collection,
@@ -13,17 +14,16 @@ import type { Entity } from '~/types'
 
 interface Props extends Pick<UseFirestoreOptions, 'autoDispose'> {
   filters?: QueryConstraint[]
+  firestore: Firestore
   initialValue?: T[]
   path: string | CollectionReference | Query
 }
 
 defineOptions({ name: 'FirestoreCollection', inheritAttrs: false })
 
-const { autoDispose = true, filters, initialValue, path } = defineProps<Props>()
+const { autoDispose = true, filters, firestore, initialValue, path } = defineProps<Props>()
 const error = shallowRef<Error | undefined>()
 const isLoading = shallowRef<boolean>(true)
-
-const { firestore } = useFirebase()
 
 const docRef = typeof path === 'string' ? collection(firestore, path) : path
 const data = useFirestore(
@@ -42,7 +42,7 @@ function errorHandler(value: Error) {
 
 <template>
   <slot v-if="isLoading" name="fallback">
-    <span>loading...</span>
+    <p>loading firebase collection...</p>
   </slot>
 
   <template v-else>

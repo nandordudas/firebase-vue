@@ -1,7 +1,7 @@
-import { type Auth, getAuth } from 'firebase/auth'
-import { type Firestore, getFirestore } from 'firebase/firestore'
+import { type Auth } from 'firebase/auth'
+import { type Firestore } from 'firebase/firestore'
 
-import { app } from '~/firebase'
+import { createApp } from '~/firebase'
 
 import { connectEmulators } from './utils'
 
@@ -10,11 +10,24 @@ interface State {
   firestore: Firestore
 }
 
-const auth = getAuth(app)
-const firestore = getFirestore(app)
+let auth: Auth
+let firestore: Firestore
 
-await connectEmulators({ auth, firestore })
+// TODO: handle error
+export async function useFirebase(): Promise<State> {
+  try {
+    const { getAuth } = await import('firebase/auth')
+    const { getFirestore } = await import('firebase/firestore')
+    const app = await createApp()
 
-export function useFirebase(): State {
+    auth ??= getAuth(app)
+    firestore ??= getFirestore(app)
+
+    await connectEmulators({ auth, firestore })
+  }
+  catch (error) {
+    console.error(error)
+  }
+
   return { auth, firestore }
 }

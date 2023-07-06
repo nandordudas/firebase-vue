@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineOptions({ name: 'FirebaseApp', inheritAttrs: false })
 
-const firebase = useFirebase()
+const firebase = await useFirebase()
 </script>
 
 <template>

@@ -4,6 +4,8 @@ import { type Auth, type User, signOut as _signOut } from 'firebase/auth'
 
 defineOptions({ name: 'AuthUser', inheritAttrs: false })
 
+const { auth } = defineProps<Props>()
+
 defineSlots<{
   authenticated: (props: {
     auth: Auth
@@ -15,7 +17,10 @@ defineSlots<{
   signedOut: (props: { auth: Auth }) => void
 }>()
 
-const { auth } = useFirebase()
+export interface Props {
+  auth: Auth
+}
+
 const isLoading = shallowRef<boolean>(true)
 const { isAuthenticated, user } = useAuth(auth)
 
@@ -32,7 +37,7 @@ async function signOut() {
 
 <template>
   <slot v-if="isLoading" name="fallback">
-    <span>loading...</span>
+    <p>loading firebase authentication...</p>
   </slot>
 
   <template v-else>
