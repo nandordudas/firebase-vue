@@ -1,0 +1,5 @@
+export * from './plugin'
+export { default as FirebaseApp } from './components/FirebaseApp.vue'
+export { default as FirebaseFirestoreCollection } from './components/FirebaseFirestoreCollection.vue'
+export { default as FirebaseFirestoreDocument } from './components/FirebaseFirestoreDocument.vue'
+export { default as FirebaseUser } from './components/FirebaseUser.vue'
