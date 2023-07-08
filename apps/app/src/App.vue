@@ -1,57 +1,55 @@
 <script setup lang="ts">
-import { Collection, Doc, type Entity, FirebaseApp, FirebaseUser } from '@workspace/firebase-vue'
 import { signInAnonymously } from 'firebase/auth'
-import { type CollectionReference, collection, doc, limit, orderBy } from 'firebase/firestore'
+import { type CollectionReference } from 'firebase/firestore'
+import { FirebaseFirestoreCollection, FirebaseFirestoreDocument, FirebaseUser } from '@workspace/next'
 
-const { auth, firestore } = useFirebase()
+import type { Entity } from './types'
 
-interface CollectionRecord extends Entity {
-  gid: string
-  name: string
-  steps?: CollectionReference
-}
-
-interface DocRecord extends Entity {
+interface DocumentRecord extends Entity {
+  isLoading?: boolean
   name: string
   sid: string
 }
 
-const GameCollection = Collection<CollectionRecord>
-const GameStepCollection = Collection<DocRecord>
-const GameDoc = Doc<DocRecord>
+interface CollectionRecord extends Entity {
+  gid: string
+  name: string
+  steps?: CollectionReference<DocumentRecord>
+}
+
+const GameCollection = FirebaseFirestoreCollection<CollectionRecord>
+const GameStepCollection = FirebaseFirestoreCollection<DocumentRecord>
+const GameDocument = FirebaseFirestoreDocument<DocumentRecord>
 </script>
 
 <template>
-  <FirebaseApp>
-    <FirebaseUser>
-      <template #authenticated="{ signOut, user }">
-        <div>user: {{ user?.uid }}</div>
+  <FirebaseUser>
+    <template #authenticated="{ signOut, user }">
+      <p>{{ user?.isAnonymous ? 'anonymous' : user?.email }}</p>
 
-        <button class="btn" type="button" @click="signOut">
-          Sign out
-        </button>
+      <GameCollection path="games">
+        <template #item="{ key }">
+          <GameStepCollection :path="`games/${key}/steps`">
+            <template #item="{ sid }">
+              <GameDocument :path="`games/${key}/steps/${sid}`">
+                <template #default="{ data }">
+                  <pre>{{ data }}</pre>
+                </template>
+              </GameDocument>
+            </template>
+          </GameStepCollection>
+        </template>
+      </GameCollection>
 
-        <GameCollection :path="collection(firestore!, 'games')" :filters="[orderBy('name', 'asc'), limit(10)]">
-          <template #item="{ key }">
-            <GameStepCollection :path="collection(firestore!, `games/${key}/steps`)">
-              <template #item="item">
-                <!-- TODO: path has type error :( -->
-                <GameDoc :path="doc(firestore!, `/games/${key}/steps/${item.sid}`)">
-                  <template #default="{ data }">
-                    <div>> {{ data }}</div>
-                  </template>
-                </GameDoc>
-              </template>
-            </GameStepCollection>
-          </template>
-        </GameCollection>
-      </template>
+      <button type="button" class="btn" @click="signOut">
+        Sign out
+      </button>
+    </template>
 
-      <template #signedOut>
-        <button type="button" class="btn" @click="signInAnonymously(auth!)">
-          Sign in (anonymously)
-        </button>
-      </template>
-    </FirebaseUser>
-  </FirebaseApp>
+    <template #signedOut="{ firebaseAuth }">
+      <button type="button" class="btn" @click="signInAnonymously(firebaseAuth!)">
+        Sign in (anonymously)
+      </button>
+    </template>
+  </FirebaseUser>
 </template>
